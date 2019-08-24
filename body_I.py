@@ -56,16 +56,16 @@ def SlcMain():
     M=len(z)
     N=40
     r_c=np.zeros((M))
-    T_0_in=288.7 #Kelvin
-    #T_0_in=float(main.l_t.text())
+#    T_0_in=288.7 #Kelvin
+    T_0_in=float(main.l_t.text())
     
-    P_0_in=101352.932 #Pascal
+#    P_0_in=101352.932 #Pascal
     #P_0_in=2116.8
-    #P_0_in=float(main.l_p.text())
+    P_0_in=float(main.l_p.text())
     
     Vr_in=0.0
-    Vz_inT=20.0
-    #Vz_inT=float(main.l_v.text())
+#    Vz_inT=20.0
+    Vz_inT=float(main.l_v.text())
     gamma=1.4
     omega_m=0.0
     omega1=2
@@ -420,7 +420,7 @@ def SlcMain():
             main.table1.setItem(j,i,QTableWidgetItem(str(Vm[j,i])))
     
 #    hover.tooltips=["Vm", "@Vm"]
-    show(p)
+#    show(p)
 if __name__=='__main__':
     import sys
     from PyQt5 import QtGui
