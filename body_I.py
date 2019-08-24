@@ -20,6 +20,7 @@ from gradient import gradient
 from velocity import velocity
 from radial import radial
 from converge2 import converge2
+from Profile import *
 
 Ui_MainWindow, QMainWindow = loadUiType('window.ui')
 
@@ -55,17 +56,18 @@ def SlcMain():
     z=np.linspace(0,1.5,30)
     M=len(z)
     N=40
-    r_c=np.zeros((M))
-#    T_0_in=288.7 #Kelvin
+    #r_c=np.zeros((M))
+    #T_0_in=288.7 #Kelvin
     T_0_in=float(main.l_t.text())
     
-#    P_0_in=101352.932 #Pascal
+    #P_0_in=101352.932 #Pascal
     #P_0_in=2116.8
     P_0_in=float(main.l_p.text())
     
     Vr_in=0.0
-#    Vz_inT=20.0
+    #Vz_inT=20.0
     Vz_inT=float(main.l_v.text())
+    
     gamma=1.4
     omega_m=0.0
     omega1=2
@@ -74,17 +76,23 @@ def SlcMain():
     
     "Casing and hub profile"
     #r_m=1
-    r_m=0.1
+    r_m=0.5
     #r_h=np.zeros((M))+0.4
-    r_h=np.zeros((M))+0.001
+    RHub=float(main.l_rhub.text())
+    r_h=np.zeros((M))+RHub
     a=0.2
     b=2.5
     #d=1
     d=1
     #r_c=r_m+0.25*(d-z)
-    r_c[:10]=r_m+0.25*(d-z[:10])
-    r_c[10:20]=r_c[9]
-    r_c[20:]=0.25*(z[20:]-z[19])+r_c[19]
+    length=float(main.l_length.text())
+    inRad=float(main.l_rin.text())
+    slope=float(main.l_slope.text())
+    #profile=Nozzle(length,inRad,slope,r_h,M,N,rho_in,Vz_inT)
+    #    r_c[:10]=r_m+0.25*(d-z[:10])
+    #    r_c[10:20]=r_c[9]
+    #    r_c[20:]=0.25*(z[20:]-z[19])+r_c[19]
+    
     #r_c=r_m-a*np.tanh(b*(z-d))
     #r_c=np.zeros((M))+1
     #r_c=a*z+r_h+0.2
@@ -92,11 +100,11 @@ def SlcMain():
     
     #for i in range(0,N):
     #    plt.plot(z,r_NEW[i,:])
-    ##        ax1.plot(z,r_NEW[i,:])
-    #
+    #        ax1.plot(z,r_NEW[i,:])
+    
     #z_plot=np.ones((N,M))*z
     #for u in range(0,M):
-    ##        ax1.plot(z_plot[:,u],r_NEW[:,u])
+    #        ax1.plot(z_plot[:,u],r_NEW[:,u])
     #    plt.plot(z_plot[:,u],r_NEW[:,u])
     
     
@@ -124,38 +132,47 @@ def SlcMain():
     #s_in1=cp.PropsSI('S','T',T_0_in,'P',P_0_in,AIR)
     #s_ref=cp.PropsSI('S','T',1,'P',1,AIR)
     s_in=Cp*np.log(T_0_in)-R * np.log(P_0_in)
-    
+    rpo=np.zeros((N,M))
     
     #rho_in=cp.PropsSI('D','T',T_0_in,'P',P_0_in,AIR)
     rho_in=(T_in**((Cp-R)/(R)) * np.exp(-s_in/R))/R
+    Vz_inT=20
+    profile=Nozzle(length,inRad,slope,r_h,M,N,rho_in,Vz_inT)
+    r,mdot_tot,mdot_per=profile.SetRad()
+    #mdot_tot=rho_in[0,0]*np.pi*(r_c[0]**2-r_h**2)*Vz_inT
+    #mdot_per=mdot_tot/(N-1)
     
-    mdot_tot=rho_in[0,0]*np.pi*(r_c[0]**2-r_h**2)*Vz_inT
-    mdot_per=mdot_tot/(N-1)
-    
-        #****************************حدس های اولیه******************************************
-    
-    ###############################################################################
-    
-        #حدس اولیه ای برای شعاع با توجه هب پرفایل کیس و هاب
+            #****************************حدس های اولیه******************************************
     
     ###############################################################################
-    r=np.zeros((N,M),dtype=float)
-    r[N-1,:]=r_c
-    r[0,:]=r_h
-    for i in range(1,N-1) :
-        r[i,0]=np.sqrt(mdot_per[0]/(rho_in[0,0]*Vz_inT*np.pi)+r[i-1,0]**2)
     
-    for i in range(1,M):
-        for j in range(1,N-1):
-            r[j,i]=( (r[j,0]-r[0,0])/(r[N-1,0]-r[0,0]) ) * (r[N-1,i]-r[0,i])+r[0,i]
+            #حدس اولیه ای برای شعاع با توجه هب پرفایل کیس و هاب
     
+    ###############################################################################
+    #r=np.zeros((N,M),dtype=float)
+    #r[N-1,:]=r_c
+    #r[0,:]=r_h
+    #for i in range(1,N-1) :
+    #    r[i,0]=np.sqrt(mdot_per[0]/(rho_in[0,0]*Vz_inT*np.pi)+r[i-1,0]**2)
+    ##    
+    #for i in range(1,M):
+    #    for j in range(1,N-1):
+    #        r[j,i]=( (r[j,0]-r[0,0])/(r[N-1,0]-r[0,0]) ) * (r[N-1,i]-r[0,i])+r[0,i]
+    #        r[N-1,:]=r_c
+    #    r[0,:]=r_h
+        
+        
+        
+    #    r[1:,0]=np.sqrt(mdot_per[0]/(rho_in[0,0]*Vz_inT*np.pi)+r[:-1,0]**2)
+    #    r[1:,1:]=( (r[1:,0]-r[0,0])/(r[-1,0]-r[0,0]) ) * (r[-1,1:]-r[0,1:])+r[0,1:]
+    #    
     delta_z=z[1]-z[0]
     
     SL_mid=int(N/2)
     
     ###############################################################################
     
-        # مقادیر سرعت V_theta ورو    # همان پارامتر whirl»
+            # مقادیر سرعت V_theta ورو    # همان پارامتر whirl»
     
     ###############################################################################
     #V_t=np.zeros((N,M))+50*r
@@ -178,13 +195,8 @@ def SlcMain():
     #plt.savefig('first one')
     Vz_in=Vz_in[:,0]
     
-    ######################################################################################
-        #  این قسمت از معادلات تنها برای وقتی است که ما برای سرعت ورودی مقدار V_theta     # نظر بگیریم در این صورت است که مقدار V_z باید تغییر کند وگرنه که همان مقدار ثابت باید #
-        # باقی بماند. هدف استفاده هم این است که از معادله تعادل شعاعی ساده شده برای        # بدست آوردن سرعت محوری با توجه به مقدار سرعت V_t ورودی برای محاسبه مقادیر    #
-         # آنتالپی و دمای سکون فقط ورودی است.خط 91                                          # در واقع پارامتر rv_t^2 که همان whirl باشد از تابع مشتق گیری بدست می آید          #
-    ######################################################################################
-    "Simplified radial eq"
-    "Below midline"
+#    "Simplified radial eq"
+#    "Below midline"
     for j in range(SL_mid-1,-1,-1):
         der1=deriv(j,(r[:,0]** 2 * V_t[:,0]** 2),r[:,0],N,1)
         Vz_in[j] =np.sqrt(Vz_in[j+1] ** 2 - 0.5 * (r[j,0] - r[j+1,0]) *
@@ -193,7 +205,7 @@ def SlcMain():
         V_t[:,0] ** 2),r[:,0],N,1)))
     
     del j
-    "Above midline"
+#    "Above midline"
     for j in range(SL_mid+1,N):
         der1=deriv(j,(r[:,0] ** 2 * V_t[:,0] ** 2),r[:,0],N,1)
         Vz_in[j] = np.sqrt(Vz_in[j-1] ** 2 - 0.5 * (r[j,0] - r[j-1,0]) * 
@@ -204,7 +216,7 @@ def SlcMain():
     
     ###############################################################################
     
-        #با توجه به قضیه استفاده از نسبت های دبی یک حدس اولیه از سرعت محوری بدست می آید
+            #با توجه به قضیه استفاده از نسبت های دبی یک حدس اولیه از سرعت محوری بدست می آید
         
     ###############################################################################
     "Find the proportion of the mass flow rate in each stream tube"
@@ -219,18 +231,17 @@ def SlcMain():
     #------------------------------------------------------------------------------
     
     ###############################################################################
-        # این جا حدس اولیه برای تمام شبه نرمال های گرید بندی انجام میشود با این   
-        # فرض که فشار و انتالپی و دمای سکون در باقی شبه نرمال ها برابر با فشار    # انتالپی سکون ورودی است.                                             
+            # این جا حدس اولیه برای تمام شبه نرمال های گرید بندی انجام میشود با این        # فرض که فشار و انتالپی و دمای سکون در باقی شبه نرمال ها برابر با فشار    # انتالپی سکون ورودی است.                                             
     ###############################################################################
-    #    " فشار سکون "
+        #    " فشار سکون "
     p_0=np.zeros((N,M),dtype=float)+P_0_in
     H_0_in=np.zeros((N))+Cp*T_0_in
     H_in=H_0_in-0.5*Vz_in**2
-    #    "دمای سکون"
+        #    "دمای سکون"
     T_0=np.zeros((N,M))+T_0_in
     V_tot=np.sqrt(Vz**2+V_t**2)
     T=T_0-(V_tot**2)/(2*Cp)
-    #    "انتالپی سکون"
+        #    "انتالپی سکون"
     H_0=np.zeros((N,M))+H_0_in[1]
     H=Cp*T
     s=Cp*np.log(T_0)-R*np.log(p_0)
@@ -238,7 +249,7 @@ def SlcMain():
     rho=P/(R*T)
     #------------------------------------------------------------------------------
     
-        #*********************************پایان حدس های اولیه*********************************
+            #*********************************پایان حدس های اولیه*********************************
     
     
     mass_f=np.zeros((N,M))+mass_frac[0:N]
@@ -402,15 +413,16 @@ def SlcMain():
         #plt.subplot(1, 2, 2)
     for i in range(0,N):
         p.line(z,r_NEW[i,:])
-        ax1.plot(z,r_NEW[i,:],'c')
-    
+        ax1.plot(z,r_NEW[i,:],'m')
+        plt.plot(z,r_NEW[i,:],'m')
     z_plot=np.ones((N,M))*z
     for u in range(0,M):
+        plt.plot(z_plot[:,u],r_NEW[:,u],'k')
         ax1.plot(z_plot[:,u],r_NEW[:,u],'k')
         p.line(z_plot[:,u],r_NEW[:,u])
-#    plt.plot(r_NEW[:,1],Vm[:,1])
-#    f1=Figure()
-#    f1.plot(z,Vm)
+    #    plt.plot(r_NEW[:,1],Vm[:,1])
+    #    f1=Figure()
+    #    f1.plot(z,Vm)
     main.rmmpl()
     main.addmpl(fig1)
     main.table1.setRowCount(N)
@@ -418,9 +430,9 @@ def SlcMain():
     for i in range (M):
         for j in range(N):
             main.table1.setItem(j,i,QTableWidgetItem(str(Vm[j,i])))
-    
-#    hover.tooltips=["Vm", "@Vm"]
-#    show(p)
+    #    
+    #    hover.tooltips=["Vm", "@Vm"]
+    #    show(p)
 if __name__=='__main__':
     import sys
     from PyQt5 import QtGui
