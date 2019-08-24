@@ -399,6 +399,11 @@ if __name__=='__main__':
     main=Main()
     
     main.show()
+    
+    main.actionNozzle.triggered.connect(lambda : NozzleProfile())
+    main.actionDiffuser.triggered.connect(lambda : DiffuserProfile())
+    main.actionCNV_DIV.triggered.connect(lambda : CNV_DIVProfile())
+    
     main.ButStart.clicked.connect(lambda : SlcMain())
     main.ExitBut.clicked.connect(QApplication.instance().quit)
     sys.exit(app.exec_())
