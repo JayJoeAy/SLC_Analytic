@@ -52,7 +52,7 @@ def SlcMain():
     Vel_tol=0.0001
     r_tol=1e-2
     
-    z=np.linspace(0,1.5,30)
+    z=np.linspace(0,1,30)
     M=len(z)
     N=40
     r_c=np.zeros((M))
@@ -82,10 +82,10 @@ def SlcMain():
     #d=1
     d=1
     #r_c=r_m+0.25*(d-z)
-    r_c[:10]=r_m+0.25*(d-z[:10])
-    r_c[10:20]=r_c[9]
-    r_c[20:]=0.25*(z[20:]-z[19])+r_c[19]
-    #r_c=r_m-a*np.tanh(b*(z-d))
+#    r_c[:10]=r_m+0.25*(d-z[:10])
+#    r_c[10:20]=r_c[9]
+#    r_c[20:]=0.25*(z[20:]-z[19])+r_c[19]
+    r_c=r_m-a*np.tanh(b*(z-d))
     #r_c=np.zeros((M))+1
     #r_c=a*z+r_h+0.2
     #plt.plot(z,r_c)
